@@ -1,0 +1,767 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications - ExpireGuard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #0b1220;
+    color: #f1f5f9;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: #090e18;
+    padding: 25px 15px;
+    border-right: 1px solid #2c3a50;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 45px;
+}
+
+.logo span {
+    color: #38c9e8;
+}
+
+.sidebar h4 {
+    color: #718198;
+    font-size: 11px;
+    margin: 15px 10px;
+    letter-spacing: 2px;
+}
+
+.nav-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 8px;
+    background: #1d2a3d;
+    color: white;
+    border-radius: 7px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.nav-btn:hover {
+    background: #263c56;
+}
+
+.nav-btn.active {
+    background: #0875bd;
+}
+
+/* MAIN CONTENT */
+main {
+    flex: 1;
+    min-width: 0;
+    padding: 30px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.topbar h1 {
+    font-size: 27px;
+    margin-bottom: 8px;
+}
+
+.topbar p {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.admin {
+    background: #151f30;
+    border: 1px solid #2c3a50;
+    padding: 12px 18px;
+    border-radius: 8px;
+}
+
+/* STATISTICS */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.stat {
+    background: #151f30;
+    border: 1px solid #2c3a50;
+    padding: 22px;
+    border-radius: 12px;
+}
+
+.stat p {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.stat h2 {
+    font-size: 32px;
+    margin: 15px 0 8px;
+}
+
+.stat small {
+    color: #94a3b8;
+}
+
+.blue { color: #38c9e8; }
+.orange { color: #fb923c; }
+.yellow { color: #facc15; }
+.red { color: #fb7185; }
+
+/* CONTENT PANEL */
+.panel {
+    background: #151f30;
+    border: 1px solid #2c3a50;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 20px;
+    border-bottom: 1px solid #2c3a50;
+}
+
+.panel-header h3 {
+    font-size: 16px;
+}
+
+.panel-header p {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+/* FILTERS */
+.action-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #2c3a50;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+input, select {
+    background: #0b1220;
+    color: #f1f5f9;
+    border: 1px solid #2c3a50;
+    border-radius: 7px;
+    padding: 10px 12px;
+    outline: none;
+}
+
+input {
+    min-width: 200px;
+}
+
+input:focus, select:focus {
+    border-color: #38c9e8;
+}
+
+button {
+    background: #0875bd;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0b91df;
+}
+
+/* NOTIFICATION LIST */
+.notification-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #2c3a50;
+    background: #151f30;
+}
+
+.notification-item:hover {
+    background: #202e42;
+}
+
+.notification-icon {
+    font-size: 24px;
+    min-width: 32px;
+}
+
+.notification-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-info h3 {
+    font-size: 14px;
+    margin: 7px 0;
+}
+
+.notification-info p {
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.notification-info small {
+    display: block;
+    margin-top: 8px;
+    color: #718198;
+    font-size: 11px;
+}
+
+/* BADGES */
+.notification-type {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.type-expired {
+    background: #49232d;
+    color: #fb7185;
+}
+
+.type-soon {
+    background: #423718;
+    color: #facc15;
+}
+
+.type-low {
+    background: #17334b;
+    color: #38c9e8;
+}
+
+.type-out {
+    background: #303b4d;
+    color: #cbd5e1;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #94a3b8;
+}
+
+@media(max-width: 1000px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 600px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .logo {
+        margin-bottom: 15px;
+    }
+
+    main {
+        padding: 15px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .topbar h1 {
+        font-size: 21px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat {
+        padding: 14px;
+    }
+
+    .stat h2 {
+        font-size: 25px;
+    }
+
+    .action-row {
+        align-items: stretch;
+    }
+
+    .filters {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    input, select, .filters button {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">EXPIRE<span>GUARD</span></div>
+
+        <h4>MAIN MENU</h4>
+
+        <nav>
+            <a href="dashboard.html" class="nav-btn">▦ Dashboard</a>
+            <a href="products.html" class="nav-btn">▣ Product Management</a>
+            <a href="inventory.html" class="nav-btn">▤ Inventory Management</a>
+            <a href="expiration-monitoring.html" class="nav-btn">◷ Expiration Monitoring</a>
+            <a href="notifications.html" class="nav-btn active">♧ Notifications</a>
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+        <header class="topbar">
+            <div>
+                <h1>Notifications</h1>
+                <p>Stay updated about product expiration and inventory status.</p>
+            </div>
+
+            <div class="admin">👤 Administrator</div>
+        </header>
+
+        <!-- STATISTICS -->
+        <section class="stats">
+
+            <div class="stat">
+                <p>TOTAL NOTIFICATIONS</p>
+                <h2 class="blue" id="totalNotifications">0</h2>
+                <small>All generated alerts</small>
+            </div>
+
+            <div class="stat">
+                <p>EXPIRED PRODUCTS</p>
+                <h2 class="red" id="expiredCount">0</h2>
+                <small>Already expired</small>
+            </div>
+
+            <div class="stat">
+                <p>EXPIRING SOON</p>
+                <h2 class="yellow" id="soonCount">0</h2>
+                <small>Within 30 days</small>
+            </div>
+
+            <div class="stat">
+                <p>STOCK ALERTS</p>
+                <h2 class="orange" id="stockCount">0</h2>
+                <small>Low or out of stock</small>
+            </div>
+
+        </section>
+
+        <!-- ALERT CENTER -->
+        <section class="panel">
+
+            <div class="panel-header">
+                <h3>Alert Center</h3>
+                <p>Product expiration and inventory notifications from MySQL.</p>
+            </div>
+
+            <div class="action-row">
+
+                <span id="filterLabel">Showing all notifications</span>
+
+                <div class="filters">
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search product..."
+                    >
+
+                    <select id="typeFilter">
+                        <option value="All">All Notifications</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Expiring Soon">Expiring Soon</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+
+                    <button id="refreshButton" type="button">
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="notification-list" id="notificationList">
+                <div class="empty">Loading notifications...</div>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+"use strict";
+
+const API_URL = "/api/products";
+
+let products = [];
+let notifications = [];
+
+const $ = id => document.getElementById(id);
+
+
+// LOAD PRODUCTS FROM MYSQL
+async function loadNotifications() {
+
+    const list = $("notificationList");
+
+    list.innerHTML = `
+        <div class="empty">Loading notifications...</div>
+    `;
+
+    try {
+
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error("HTTP Error: " + response.status);
+        }
+
+        const data = await response.json();
+
+        products = Array.isArray(data)
+            ? data
+            : Array.isArray(data.products)
+                ? data.products
+                : [];
+
+        generateNotifications();
+
+    } catch (error) {
+
+        console.error("Notification Error:", error);
+
+        list.innerHTML = `
+            <div class="empty">
+                Unable to load notifications.
+                Check your server and database connection.
+            </div>
+        `;
+    }
+}
+
+
+// CALCULATE DAYS REMAINING
+function getDays(expiration) {
+
+    if (!expiration) return null;
+
+    const dateOnly = String(expiration).slice(0, 10);
+    const expiry = new Date(dateOnly + "T00:00:00");
+
+    if (isNaN(expiry.getTime())) return null;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return Math.ceil(
+        (expiry - today) / 86400000
+    );
+}
+
+
+// GENERATE NOTIFICATIONS
+function generateNotifications() {
+
+    notifications = [];
+
+    products.forEach(product => {
+
+        const days = getDays(product.expiry_date);
+        const quantity = Number(product.quantity || 0);
+        const name = product.product_name || "Unnamed Product";
+
+        // EXPIRED
+        if (days !== null && days < 0) {
+
+            notifications.push({
+                name,
+                type: "Expired",
+                message: name + " has expired " +
+                    Math.abs(days) + " day(s) ago.",
+                icon: "🚨",
+                date: product.expiry_date
+            });
+
+        }
+
+        // EXPIRING SOON
+        else if (days !== null && days <= 30) {
+
+            notifications.push({
+                name,
+                type: "Expiring Soon",
+                message: name + " will expire in " +
+                    days + " day(s).",
+                icon: "⚠️",
+                date: product.expiry_date
+            });
+
+        }
+
+        // OUT OF STOCK
+        if (quantity <= 0) {
+
+            notifications.push({
+                name,
+                type: "Out of Stock",
+                message: name + " is currently out of stock.",
+                icon: "📦",
+                date: null
+            });
+
+        }
+
+        // LOW STOCK
+        else if (quantity <= 5) {
+
+            notifications.push({
+                name,
+                type: "Low Stock",
+                message: name + " has only " +
+                    quantity + " item(s) remaining.",
+                icon: "📉",
+                date: null
+            });
+
+        }
+
+    });
+
+    updateStats();
+    renderNotifications();
+}
+
+
+// UPDATE STATISTICS
+function updateStats() {
+
+    $("totalNotifications").textContent =
+        notifications.length;
+
+    $("expiredCount").textContent =
+        notifications.filter(
+            n => n.type === "Expired"
+        ).length;
+
+    $("soonCount").textContent =
+        notifications.filter(
+            n => n.type === "Expiring Soon"
+        ).length;
+
+    $("stockCount").textContent =
+        notifications.filter(n =>
+            n.type === "Low Stock" ||
+            n.type === "Out of Stock"
+        ).length;
+}
+
+
+// FILTER NOTIFICATIONS
+function getFilteredNotifications() {
+
+    const search = $("searchInput").value
+        .toLowerCase()
+        .trim();
+
+    const filter = $("typeFilter").value;
+
+    return notifications.filter(notification => {
+
+        const matchesSearch =
+            notification.name.toLowerCase().includes(search);
+
+        const matchesType =
+            filter === "All" ||
+            notification.type === filter;
+
+        return matchesSearch && matchesType;
+    });
+}
+
+
+// DISPLAY NOTIFICATIONS
+function renderNotifications() {
+
+    const list = $("notificationList");
+    const filtered = getFilteredNotifications();
+
+    list.replaceChildren();
+
+    $("filterLabel").textContent =
+        $("typeFilter").value === "All"
+            ? "Showing all notifications"
+            : "Showing " + $("typeFilter").value + " notifications";
+
+    if (filtered.length === 0) {
+
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent =
+            "No notifications found.";
+
+        list.appendChild(empty);
+        return;
+    }
+
+    filtered.forEach(notification => {
+
+        const item = document.createElement("div");
+        item.className = "notification-item";
+
+        const icon = document.createElement("div");
+        icon.className = "notification-icon";
+        icon.textContent = notification.icon;
+
+        const info = document.createElement("div");
+        info.className = "notification-info";
+
+        const badge = document.createElement("span");
+
+        badge.className = "notification-type " +
+            (
+                notification.type === "Expired"
+                    ? "type-expired"
+                    : notification.type === "Expiring Soon"
+                        ? "type-soon"
+                        : notification.type === "Low Stock"
+                            ? "type-low"
+                            : "type-out"
+            );
+
+        badge.textContent = notification.type;
+
+        const title = document.createElement("h3");
+        title.textContent = notification.name;
+
+        const message = document.createElement("p");
+        message.textContent = notification.message;
+
+        info.appendChild(badge);
+        info.appendChild(title);
+        info.appendChild(message);
+
+        if (notification.date) {
+
+            const date = document.createElement("small");
+
+            date.textContent =
+                "Expiration Date: " +
+                String(notification.date).slice(0, 10);
+
+            info.appendChild(date);
+        }
+
+        item.appendChild(icon);
+        item.appendChild(info);
+
+        list.appendChild(item);
+
+    });
+}
+
+
+// SEARCH
+$("searchInput").addEventListener(
+    "input",
+    renderNotifications
+);
+
+
+// FILTER
+$("typeFilter").addEventListener(
+    "change",
+    renderNotifications
+);
+
+
+// REFRESH
+$("refreshButton").addEventListener(
+    "click",
+    loadNotifications
+);
+
+
+// INITIAL LOAD
+loadNotifications();
+
+
+// REFRESH WHEN RETURNING TO PAGE
+window.addEventListener("pageshow", () => {
+    loadNotifications();
+});
+
+</script>
+
+</body>
+</html>

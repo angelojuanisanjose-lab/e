@@ -1,0 +1,690 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expiration Monitoring - ExpireGuard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1220;
+    color: #f1f5f9;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: #090e18;
+    padding: 25px 15px;
+    border-right: 1px solid #2c3a50;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 45px;
+}
+
+.logo span {
+    color: #38c9e8;
+}
+
+.sidebar h4 {
+    color: #718198;
+    font-size: 11px;
+    margin: 15px 10px;
+    letter-spacing: 2px;
+}
+
+.nav-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 8px;
+    background: #1d2a3d;
+    color: white;
+    border-radius: 7px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+    background: #0875bd;
+}
+
+main {
+    flex: 1;
+    padding: 30px;
+    min-width: 0;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.topbar p {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.admin {
+    background: #151f30;
+    border: 1px solid #2c3a50;
+    padding: 12px 18px;
+    border-radius: 8px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.stat {
+    background: #151f30;
+    border: 1px solid #2c3a50;
+    padding: 22px;
+    border-radius: 12px;
+    transition: .2s;
+}
+
+.stat:hover {
+    border-color: #38c9e8;
+    transform: translateY(-2px);
+}
+
+.stat p {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.stat h2 {
+    font-size: 32px;
+    margin: 15px 0 8px;
+}
+
+.stat small {
+    color: #94a3b8;
+}
+
+.blue { color: #38c9e8; }
+.green { color: #4ade80; }
+.yellow { color: #facc15; }
+.red { color: #fb7185; }
+
+.panel {
+    background: #151f30;
+    border: 1px solid #2c3a50;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 20px;
+    border-bottom: 1px solid #2c3a50;
+}
+
+.panel-header p {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+.action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+}
+
+input, select {
+    background: #0b1220;
+    color: white;
+    border: 1px solid #2c3a50;
+    border-radius: 7px;
+    padding: 10px;
+    min-width: 180px;
+}
+
+input:focus, select:focus {
+    outline: 1px solid #38c9e8;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #2c3a50;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+th {
+    color: #94a3b8;
+}
+
+tbody tr:hover {
+    background: #202e42;
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+}
+
+.fresh {
+    background: #123a2b;
+    color: #4ade80;
+}
+
+.soon {
+    background: #423718;
+    color: #facc15;
+}
+
+.expired {
+    background: #49232d;
+    color: #fb7185;
+}
+
+.low {
+    background: #292650;
+    color: #a5a0ff;
+}
+
+.out {
+    background: #303744;
+    color: #cbd5e1;
+}
+
+.empty {
+    text-align: center;
+    color: #94a3b8;
+    padding: 25px;
+}
+
+.refresh-btn {
+    background: #0875bd;
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.refresh-btn:hover {
+    background: #0b91df;
+}
+
+@media(max-width: 1000px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 600px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .logo {
+        margin-bottom: 15px;
+    }
+
+    main {
+        padding: 15px;
+    }
+
+    .topbar h1 {
+        font-size: 21px;
+    }
+
+    .stats {
+        gap: 10px;
+    }
+
+    .stat {
+        padding: 14px;
+    }
+
+    .action-row {
+        align-items: stretch;
+    }
+
+    input, select {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">EXPIRE<span>GUARD</span></div>
+
+        <h4>MAIN MENU</h4>
+
+        <a href="dashboard.html" class="nav-btn">▦ Dashboard</a>
+        <a href="products.html" class="nav-btn">▣ Product Management</a>
+        <a href="inventory.html" class="nav-btn">▤ Inventory Management</a>
+        <a href="expired-monitoring.html" class="nav-btn active">◷ Expiration Monitoring</a>
+        <a href="notifications.html" class="nav-btn">♧ Expiry Notifications</a>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+        <header class="topbar">
+            <div>
+                <h1>Expiration Monitoring</h1>
+                <p>Monitor product expiration dates and stock status.</p>
+            </div>
+
+            <div class="admin">👤 Administrator</div>
+        </header>
+
+        <!-- STATISTICS -->
+        <section class="stats">
+
+            <div class="stat">
+                <p>TOTAL PRODUCTS</p>
+                <h2 class="blue" id="totalBatches">0</h2>
+                <small>Product records</small>
+            </div>
+
+            <div class="stat">
+                <p>FRESH PRODUCTS</p>
+                <h2 class="green" id="freshCount">0</h2>
+                <small>More than 30 days remaining</small>
+            </div>
+
+            <div class="stat">
+                <p>EXPIRING SOON</p>
+                <h2 class="yellow" id="soonCount">0</h2>
+                <small>Within 30 days</small>
+            </div>
+
+            <div class="stat">
+                <p>EXPIRED PRODUCTS</p>
+                <h2 class="red" id="expiredCount">0</h2>
+                <small>Past expiration date</small>
+            </div>
+
+        </section>
+
+        <!-- EXPIRATION RECORDS -->
+        <section class="panel">
+
+            <div class="panel-header">
+                <h3>Product Expiration Records</h3>
+                <p>Complete expiration records from MySQL products table.</p>
+            </div>
+
+            <div class="action-row">
+
+                <span id="filterLabel">Showing all products</span>
+
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search product..."
+                >
+
+                <select id="statusFilter">
+                    <option value="All">All Status</option>
+                    <option value="Fresh">Fresh</option>
+                    <option value="Expiring Soon">Expiring Soon</option>
+                    <option value="Expired">Expired</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                </select>
+
+                <button class="refresh-btn" id="refreshButton">
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Product Name</th>
+                            <th>Brand</th>
+                            <th>Quantity</th>
+                            <th>Manufacturing Date</th>
+                            <th>Expiration Date</th>
+                            <th>Days Remaining</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="expirationTable">
+                        <tr>
+                            <td colspan="8" class="empty">
+                                Loading products...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+const API_URL = "/api/products";
+
+let products = [];
+
+const $ = id => document.getElementById(id);
+
+
+// LOAD PRODUCTS FROM MYSQL
+async function loadData() {
+
+    const tbody = $("expirationTable");
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="8" class="empty">Loading products...</td>
+        </tr>
+    `;
+
+    try {
+
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error("Failed to load products. HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        products = Array.isArray(data)
+            ? data
+            : Array.isArray(data.products)
+                ? data.products
+                : [];
+
+        renderTable();
+
+    } catch (error) {
+
+        console.error("MONITORING ERROR:", error);
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    Unable to load products. Check your server and database connection.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+// FORMAT DATE
+function formatDate(value) {
+
+    if (!value) return "-";
+
+    return String(value).slice(0, 10);
+}
+
+
+// PARSE DATE WITHOUT UTC SHIFT
+function parseDate(value) {
+
+    if (!value) return null;
+
+    const parts = formatDate(value).split("-").map(Number);
+
+    if (parts.length !== 3 || parts.some(Number.isNaN)) {
+        return null;
+    }
+
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+
+// CALCULATE DAYS REMAINING
+function getDays(expiration) {
+
+    const expiry = parseDate(expiration);
+
+    if (!expiry) return null;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return Math.ceil(
+        (expiry.getTime() - today.getTime()) / 86400000
+    );
+}
+
+
+// GET PRODUCT STATUS
+function getStatus(product) {
+
+    const days = getDays(product.expiry_date);
+    const quantity = Number(product.quantity || 0);
+
+    if (days !== null && days < 0) {
+        return "Expired";
+    }
+
+    if (days !== null && days <= 30) {
+        return "Expiring Soon";
+    }
+
+    if (quantity <= 0) {
+        return "Out of Stock";
+    }
+
+    if (quantity <= 5) {
+        return "Low Stock";
+    }
+
+    return "Fresh";
+}
+
+
+// UPDATE STATISTICS
+function updateStats() {
+
+    $("totalBatches").textContent = products.length;
+
+    $("freshCount").textContent =
+        products.filter(p => getStatus(p) === "Fresh").length;
+
+    $("soonCount").textContent =
+        products.filter(p => getStatus(p) === "Expiring Soon").length;
+
+    $("expiredCount").textContent =
+        products.filter(p => getStatus(p) === "Expired").length;
+}
+
+
+// DISPLAY EXPIRATION TABLE
+function renderTable() {
+
+    const search = $("searchInput").value.toLowerCase().trim();
+    const filter = $("statusFilter").value;
+
+    updateStats();
+
+    const filtered = products.filter(product => {
+
+        const matchesSearch = [
+            product.product_id,
+            product.product_name,
+            product.brand,
+            product.barcode
+        ].some(value =>
+            String(value ?? "").toLowerCase().includes(search)
+        );
+
+        const matchesStatus =
+            filter === "All" || getStatus(product) === filter;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    $("filterLabel").textContent =
+        filter === "All"
+            ? "Showing all products"
+            : "Showing " + filter + " products";
+
+    const tbody = $("expirationTable");
+    tbody.replaceChildren();
+
+    if (filtered.length === 0) {
+
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+
+        td.colSpan = 8;
+        td.className = "empty";
+        td.textContent = "No matching expiration records found.";
+
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+
+        return;
+    }
+
+    filtered.forEach(product => {
+
+        const tr = document.createElement("tr");
+
+        const days = getDays(product.expiry_date);
+        const status = getStatus(product);
+
+        const values = [
+            product.product_id,
+            product.product_name || "-",
+            product.brand || "-",
+            Number(product.quantity || 0),
+            product.manufacture_date
+                ? formatDate(product.manufacture_date)
+                : "-",
+            product.expiry_date
+                ? formatDate(product.expiry_date)
+                : "Not set",
+            days === null
+                ? "Not available"
+                : days < 0
+                    ? Math.abs(days) + " days overdue"
+                    : days + " days"
+        ];
+
+        values.forEach(value => {
+
+            const td = document.createElement("td");
+            td.textContent = value;
+
+            tr.appendChild(td);
+        });
+
+        // STATUS BADGE
+        const statusCell = document.createElement("td");
+        const badge = document.createElement("span");
+
+        badge.className = "status " + (
+            status === "Expired" ? "expired" :
+            status === "Expiring Soon" ? "soon" :
+            status === "Low Stock" ? "low" :
+            status === "Out of Stock" ? "out" :
+            "fresh"
+        );
+
+        badge.textContent = status;
+
+        statusCell.appendChild(badge);
+        tr.appendChild(statusCell);
+
+        tbody.appendChild(tr);
+    });
+}
+
+
+// SEARCH
+$("searchInput").addEventListener("input", renderTable);
+
+
+// STATUS FILTER
+$("statusFilter").addEventListener("change", renderTable);
+
+
+// REFRESH BUTTON
+$("refreshButton").addEventListener("click", loadData);
+
+
+// INITIAL LOAD
+loadData();
+
+
+// REFRESH WHEN RETURNING TO PAGE
+window.addEventListener("pageshow", event => {
+    if (event.persisted) {
+        loadData();
+    }
+});
+
+</script>
+
+</body>
+</html>

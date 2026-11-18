@@ -1,0 +1,579 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management - ExpireGuard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #0b1220;
+            color: #f1f5f9;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: #090e18;
+            padding: 25px 15px;
+            border-right: 1px solid #2c3a50;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 45px;
+        }
+
+        .logo span {
+            color: #38c9e8;
+        }
+
+        .sidebar h4 {
+            color: #718198;
+            font-size: 11px;
+            margin: 15px 10px;
+            letter-spacing: 2px;
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 8px;
+            background: #1d2a3d;
+            color: white;
+            border-radius: 7px;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: #263c56;
+        }
+
+        .nav-btn.active {
+            background: #0875bd;
+        }
+
+        /* MAIN */
+        main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 27px;
+            margin-bottom: 8px;
+        }
+
+        .topbar p {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .admin {
+            background: #151f30;
+            border: 1px solid #2c3a50;
+            padding: 12px 18px;
+            border-radius: 8px;
+        }
+
+        /* STATISTICS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat {
+            background: #151f30;
+            border: 1px solid #2c3a50;
+            padding: 22px;
+            border-radius: 12px;
+        }
+
+        .stat p {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .stat h2 {
+            font-size: 30px;
+            margin-top: 15px;
+        }
+
+        .blue { color: #38c9e8; }
+        .orange { color: #fb923c; }
+        .red { color: #fb7185; }
+
+        /* PANELS */
+        .panel {
+            background: #151f30;
+            border: 1px solid #2c3a50;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid #2c3a50;
+        }
+
+        .panel-header h3 {
+            font-size: 17px;
+        }
+
+        .panel-header p {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        /* FORM */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 11px 12px;
+            background: #0b1220;
+            color: white;
+            border: 1px solid #2c3a50;
+            border-radius: 7px;
+            outline: none;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #38c9e8;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #718198;
+        }
+
+        input[type="date"] {
+            color-scheme: dark;
+        }
+
+        textarea {
+            min-height: 85px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px 20px;
+        }
+
+        button {
+            padding: 11px 16px;
+            background: #0875bd;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0b91df;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .cancel-btn {
+            background: #475569;
+            display: none;
+        }
+
+        .cancel-btn:hover {
+            background: #64748b;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+
+        .edit-btn {
+            background: #0875bd;
+            margin-right: 5px;
+        }
+
+        #message {
+            display: none;
+            margin: 0 20px 20px;
+            padding: 11px;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        #message.success {
+            display: block;
+            background: #123a2b;
+            color: #4ade80;
+        }
+
+        #message.error {
+            display: block;
+            background: #49232d;
+            color: #fb7185;
+        }
+
+        /* PRODUCT TABLE */
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 15px 20px;
+        }
+
+        #productCount {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-group input {
+            flex: 1;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 950px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #2c3a50;
+            font-size: 12px;
+        }
+
+        th {
+            color: #94a3b8;
+            background: #111b2b;
+        }
+
+        td {
+            color: #e2e8f0;
+        }
+
+        tbody tr:hover {
+            background: #202e42;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #94a3b8;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .logo {
+                margin-bottom: 15px;
+            }
+
+            main {
+                padding: 15px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .topbar h1 {
+                font-size: 21px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .search-group {
+                max-width: 100%;
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .search-group input,
+            .search-group button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">EXPIRE<span>GUARD</span></div>
+
+        <h4>MAIN MENU</h4>
+
+        <nav>
+            <a href="dashboard.html" class="nav-btn">▦ Dashboard</a>
+            <a href="products.html" class="nav-btn active">▣ Product Management</a>
+            <a href="inventory.html" class="nav-btn">▤ Inventory Management</a>
+            <a href="expiration-monitoring.html" class="nav-btn">◷ Expiration Monitoring</a>
+            <a href="notifications.html" class="nav-btn">♧ Notifications</a>
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+        <header class="topbar">
+            <div>
+                <h1>Product Management</h1>
+                <p>Add, update, search, and manage your products.</p>
+            </div>
+
+            <div class="admin">👤 Administrator</div>
+        </header>
+
+        <!-- STATISTICS -->
+        <section class="stats">
+
+            <div class="stat">
+                <p>TOTAL PRODUCTS</p>
+                <h2 class="blue" id="totalProducts">0</h2>
+            </div>
+
+            <div class="stat">
+                <p>TOTAL QUANTITY</p>
+                <h2 class="orange" id="totalQuantity">0</h2>
+            </div>
+
+            <div class="stat">
+                <p>OUT OF STOCK</p>
+                <h2 class="red" id="outOfStock">0</h2>
+            </div>
+
+        </section>
+
+        <!-- ADD / UPDATE FORM -->
+        <section class="panel">
+
+            <div class="panel-header">
+                <h3 id="formTitle">Add Product</h3>
+                <p>Enter product information below.</p>
+            </div>
+
+            <form id="productForm">
+
+                <input type="hidden" id="productId">
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="category">Category</label>
+                        <input type="text" id="category">
+                    </div>
+
+                    <div class="field">
+                        <label for="brand">Brand</label>
+                        <input type="text" id="brand">
+                    </div>
+
+                    <div class="field">
+                        <label for="barcode">Barcode</label>
+                        <input type="text" id="barcode">
+                    </div>
+
+                    <div class="field">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" min="0" value="0" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="expiryDate">Expiry Date</label>
+                        <input type="date" id="expiryDate">
+                    </div>
+
+                    <div class="field full">
+                        <label for="description">Description</label>
+                        <textarea id="description"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" id="saveButton">Save Product</button>
+
+                    <button type="button" id="cancelButton" class="cancel-btn">
+                        Cancel
+                    </button>
+                </div>
+
+                <p id="message"></p>
+
+            </form>
+
+        </section>
+
+        <!-- PRODUCT TABLE -->
+        <section class="panel">
+
+            <div class="panel-header">
+                <h3>Product List</h3>
+                <p>Manage all products stored in your database.</p>
+            </div>
+
+            <div class="action-row">
+
+                <span id="productCount">0 products</span>
+
+                <div class="search-group">
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search product, category, brand or barcode..."
+                    >
+
+                    <button type="button" id="searchButton">
+                        Search
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Brand</th>
+                            <th>Barcode</th>
+                            <th>Quantity</th>
+                            <th>Expiry Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="productTable">
+                        <tr>
+                            <td colspan="8" class="empty">
+                                Loading products...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="add-products.js"></script>
+<script src="products.js"></script>
+
+</body>
+</html>
